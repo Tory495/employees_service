@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Sanctum::ignoreMigrations();
     }
 
     /**
@@ -19,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        DB::listen(function (QueryExecuted $query) {
+            Log::info("Query: $query->sql\n\rBindings: " . implode(',', $query->bindings)  . "\n\rTime: $query->time");
+        });
     }
 }
